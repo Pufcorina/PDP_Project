@@ -16,11 +16,8 @@ public class Console {
                     default:
                         System.out.println("Invalid option");
                 }
-                Thread.sleep(2000);
             } catch (IOException e) {
                 System.out.println(e.getMessage());
-            } catch (InterruptedException e) {
-                e.printStackTrace();
             }
         }
     }
@@ -37,14 +34,28 @@ public class Console {
     }
 
     private void gaussianBlur() {
-        Image img2048x1174 = new Image("../data/animal-beagle-canine-2048x1174.jpg");
+        int blurSize = getBlurSize();
+
+        Image img2048x1174 = new Image("../data/animal-beagle-canine-2048x1174.jpg", blurSize);
         System.out.println("Time for 2048x1174 is: " + img2048x1174.exportGaussianBlurImageToFile("./data/blur_img2048x1174") + " seconds");
 
-        Image img640x336 = new Image("../data/pexels-photo-640x336.jpeg");
+        Image img640x336 = new Image("../data/pexels-photo-640x336.jpeg", blurSize);
         System.out.println("Time for 640x336 is: " + img640x336.exportGaussianBlurImageToFile("./data/blur_img640x336") + " seconds");
 
-        Image img1280x733 = new Image("../data/pexels-photo-1280x733.jpeg");
+        Image img1280x733 = new Image("../data/pexels-photo-1280x733.jpeg", blurSize);
         System.out.println("Time for 1280x733 is: " + img1280x733.exportGaussianBlurImageToFile("./data/blur_img1280x733") + " seconds");
+    }
+
+    private int getBlurSize() {
+        System.out.println("Blur depth: ");
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        try {
+            int input = Integer.parseInt(br.readLine());
+            return input;
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+            return 0;
+        }
     }
 
     private void printMenu() {
