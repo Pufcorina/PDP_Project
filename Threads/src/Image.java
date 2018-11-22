@@ -89,14 +89,22 @@ public class Image {
             }
     }
 
-    public void exportGrayScaleImageToFile(String fileName) {
+    public float exportGrayScaleImageToFile(String fileName) {
+        float start =  System.nanoTime() / 1000000;
         grayScaleImageFilter();
         exportImage(fileName, createPixelMatrix(grayScale, grayScale, grayScale));
+        float end = System.nanoTime() / 1000000;
+
+        return (end - start) / 1000;
     }
 
-    public void exportGaussianBlurImageToFile(String fileName) {
+    public float exportGaussianBlurImageToFile(String fileName) {
+        float start =  System.nanoTime() / 1000000;
         gaussianBlurImageFilter();
         exportImage(fileName, blureMatrix);
+        float end = System.nanoTime() / 1000000;
+
+        return (end - start) / 1000;
     }
 
     private void gaussianBlurImageFilter() {
