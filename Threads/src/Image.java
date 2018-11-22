@@ -2,6 +2,8 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Image {
     private int height;
@@ -12,7 +14,9 @@ public class Image {
     private int[][] g;
     private int[][] b;
     private int[][] grayScale;
-    private int[][][] blureMatrix;
+    private int[][][] blurMatrix;
+
+    private int nrThreads = 10;
 
     public Image(String filePath) {
         this.filePath = filePath;
@@ -29,7 +33,7 @@ public class Image {
             g = new int[height][width];
             b = new int[height][width];
             grayScale = new int[height][width];
-            blureMatrix = new int[height][width][3];
+            blurMatrix = new int[height][width][3];
 
             int[] aux;
             for (int i = 0; i < height; i++)
@@ -79,14 +83,13 @@ public class Image {
     }
 
     private void grayScaleImageFilter() {
-        for (int i = 0; i < height; i++)
-            for (int j = 0; j < width; j++) {
-                int sum = (int) (r[i][j] * 0.299 + g[i][j] * 0.587 + b[i][j] * 0.114);
-                if (sum > 255)
-                    grayScale[i][j] = 255;
-                else
-                    grayScale[i][j] = sum;
-            }
+        ExecutorService executorService = Executors.newFixedThreadPool(nrThreads);
+
+        for (int i = 0; i < height; i++) {
+            executorService.execute(new ThreadGreyScale(i, width, r, g, b, grayScale));
+        }
+
+        executorService.shutdown();
     }
 
     public void exportGrayScaleImageToFile(String fileName) {
@@ -96,35 +99,17 @@ public class Image {
 
     public void exportGaussianBlurImageToFile(String fileName) {
         gaussianBlurImageFilter();
-        exportImage(fileName, blureMatrix);
+        exportImage(fileName, blurMatrix);
     }
 
     private void gaussianBlurImageFilter() {
-        for (int i = 0; i < height; i++)
-            for (int j = 0; j < width; j++)
-                blureMatrix[i][j] = getAveragePixel(i, j, 9);
-    }
+        ExecutorService executorService = Executors.newFixedThreadPool(nrThreads);
 
-    private int[] getAveragePixel(int x, int y, int size) {
-        int[] average = new int[3];
-        average[0] = 0;
-        average[1] = 0;
-        average[2] = 0;
-        int pix = 0;
-        for (int i = x - (size / 2); i < x + (size / 2) + 1; i++)
-            if (i >= 0 && i < height)
-                for (int j = y - 1; j < y + 2; j++)
-                    if (j >= 0 && j < width)
-                        if (x != i || y != j) {
-                            pix++;
-                            average[0] += r[i][j];
-                            average[1] += g[i][j];
-                            average[2] += b[i][j];
-                        }
-        average[0] = average[0] / pix;
-        average[1] = average[1] / pix;
-        average[2] = average[2] / pix;
+        int size = 9;
+        for (int i = 0; i < height; i++) {
+            executorService.execute(new ThreadBlur(i, height, width, size, r, g, b, blurMatrix));
+        }
 
-        return average;
+        executorService.shutdown();
     }
 }
