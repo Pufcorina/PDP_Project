@@ -21,11 +21,31 @@ public class ThreadBlur implements Runnable {
     }
 
     public synchronized void run() {
-        for (int j = 0; j < width; j++)
-            blurMatrix[i][j] = getAveragePixel(i, j, size);
+        int[] average;
+        for (int jj = 0; jj < width; jj++) {
+            average = new int[3];
+            int x = i;
+            int y = jj;
+            int pix = 0;
+            for (int i = x - (size / 2); i < x + (size / 2) + 1; i++)
+                if (i >= 0 && i < height)
+                    for (int j = y - 1; j < y + 2; j++)
+                        if (j >= 0 && j < width)
+                            if (x != i || y != j) {
+                                pix++;
+                                average[0] += r[i][j];
+                                average[1] += g[i][j];
+                                average[2] += b[i][j];
+                            }
+            average[0] = average[0] / pix;
+            average[1] = average[1] / pix;
+            average[2] = average[2] / pix;
+
+            blurMatrix[i][jj] = average;
+        }
     }
 
-    private int[] getAveragePixel(int x, int y, int size) {
+    private synchronized int[] getAveragePixel(int x, int y, int size) {
         int[] average = new int[3];
         int pix = 0;
         for (int i = x - (size / 2); i < x + (size / 2) + 1; i++)

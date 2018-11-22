@@ -105,7 +105,6 @@ public class Image {
         float start =  System.nanoTime() / 1000000;
         gaussianBlurImageFilter();
         exportImage(fileName, blurMatrix);
-        exportImage(fileName, blurMatrix);
         float end = System.nanoTime() / 1000000;
 
         return (end - start) / 1000;
