@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class Image {
     private int height;
@@ -15,8 +16,15 @@ public class Image {
     private int[][] b;
     private int[][] grayScale;
     private int[][][] blurMatrix;
+    int blurSize;
 
     private int nrThreads = 10;
+
+    public Image(String filePath, int blurSize) {
+        this.filePath = filePath;
+        this.blurSize = blurSize;
+        readImageFromFile();
+    }
 
     public Image(String filePath) {
         this.filePath = filePath;
@@ -90,6 +98,11 @@ public class Image {
         }
 
         executorService.shutdown();
+        try {
+            executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+        } catch (InterruptedException e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     public float exportGrayScaleImageToFile(String fileName) {
@@ -113,11 +126,15 @@ public class Image {
     private void gaussianBlurImageFilter() {
         ExecutorService executorService = Executors.newFixedThreadPool(nrThreads);
 
-        int size = 9;
         for (int i = 0; i < height; i++) {
-            executorService.execute(new ThreadBlur(i, height, width, size, r, g, b, blurMatrix));
+            executorService.execute(new ThreadBlur(i, height, width, blurSize, r, g, b, blurMatrix));
         }
 
         executorService.shutdown();
+        try {
+            executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+        } catch (InterruptedException e) {
+            System.out.println(e.getMessage());
+        }
     }
 }
