@@ -6,3 +6,16 @@
 
 # IntelliJ
 out/
+
+# Visual Studio User-specific files
+*.suo
+*.user
+*.sln.docstates
+
+# Visual Studio Build results
+
+[Dd]ebug/
+[Rr]elease/
+x64/
+[Bb]in/
+[Oo]bj/
